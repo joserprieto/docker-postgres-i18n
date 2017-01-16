@@ -1,8 +1,8 @@
 # Supported tags and respective `Dockerfile` links
 
--	[`9.6.1-es-es`, `9.6-es-es`, `9-es-es`, `latest-es-es`, `latest` (*9.6/Debian/Dockerfile*)](https://github.com/joserprieto/docker-postgres-i18n/9.6/Debian/Dockerfile)
--	[`9.4.10-es-es`, `9.4-es-es` (*9.4/Debian/Dockerfile*)](https://github.com/joserprieto/docker-postgres-i18n/9.4/Debian/Dockerfile)
--	[`9.2.19-es-es`, `9.2-es-es` (*9.2/Debian/Dockerfile*)](https://github.com/joserprieto/docker-postgres-i18n/9.2/Debian/Dockerfile)
+-   [`9.6.1-es-es`, `9.6-es-es`, `9-es-es`, `latest-es-es`, `latest` (*9.6/Debian/Dockerfile*)](https://github.com/joserprieto/docker-postgres-i18n/blob/master/9.6/debian/Dockerfile)
+-   [`9.4.10-es-es`, `9.4-es-es` (*9.4/Debian/Dockerfile*)](https://github.com/joserprieto/docker-postgres-i18n/blob/master/9.4/debian/Dockerfile)
+-   [`9.2.19-es-es`, `9.2-es-es` (*9.2/Debian/Dockerfile*)](https://github.com/joserprieto/docker-postgres-i18n/blob/master/9.2/debian/Dockerfile)
 
 For more information about this image and its history, please see [the relevant manifest file (`library/postgres`)](https://github.com/docker-library/official-images/blob/master/library/postgres). This image is updated via [pull requests to the `docker-library/official-images` GitHub repo](https://github.com/docker-library/official-images/pulls?q=label%3Alibrary%2Fpostgres).
 
@@ -23,6 +23,7 @@ PostgreSQL implements the majority of the SQL:2011 standard, is ACID-compliant a
 This image is based on PostgreSQL Official Image:
 
 > [PostgreSQL Official Image](https://hub.docker.com/_/postgres/)
+
 > [PostgreSQL Official Image Repository](https://github.com/docker-library/postgres/)
 
 But add extra support for configure timezone and locales before built the image, with the arguments in 
@@ -110,7 +111,6 @@ Obviously, the value of the timezone has to be one of the right values:
 
 The Dockerfile's of each version, are the same as de Official Image, and only adds the code explained before; so, why
 not do a Dockerfile like:
-
 ```dockerfile
 FROM postgres:latest
 ..
@@ -119,9 +119,9 @@ And the code for the localization?
 
 Because, as the official documentation of PostgreSQL explains:
 
-[](https://www.postgresql.org/docs/9.4/static/charset.html)
+[https://www.postgresql.org/docs/9.4/static/charset.html]()
 
-[](https://www.postgresql.org/docs/9.4/static/locale.html#AEN35162)
+[https://www.postgresql.org/docs/9.4/static/locale.html#AEN35162]()
 
 So, the `initdb` commmand is executed after the apt-get install; and PostgreSQL was installed with the deb packages
 system of Debian; so, we have to localized the image before the installation of the PostgreSQL.
