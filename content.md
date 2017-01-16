@@ -25,11 +25,28 @@ Timezone:   "Europe/Madrid"
 Locale:     es_ES.UTF-8
 ```
 
-# How to use this image.
+# About this image
+
+This image is based on PostgreSQL Official Image:
+
+> [PostgreSQL Official Image](https://hub.docker.com/_/postgres/)
+> [PostgreSQL Official Image Repository](https://github.com/docker-library/postgres/)
+
+But add extra support for configure timezone and locales before built the image, with the arguments in
+the `docker build` command (`--build-arg`), and `ARG` in the `Dockerfile`.
+
+Default values for the timezone and locale are:
+
+```bash
+Timezone:   "Europe/Madrid"
+Locale:     es_ES.UTF-8
+```
+
+# Locale and timezone.
 
 ## Build a localized image.
 
-To build a localized image, this is, a PostgreSQL (Debian based) Image with locale and timezone correctly defined, we 
+To build a localized image, this is, a PostgreSQL (Debian based) Image with locale and timezone correctly defined, we
 have to use the `--build-arg` parameter of the `docker build` command.
 
 An example:
@@ -40,7 +57,7 @@ docker build --build-arg TIMEZONE="Europe/France" --build-arg LOCALE_LANG_COUNTR
 
 ## Locales
 
-The locales are generated with the snippet described in Debian Official Image, and 
+The locales are generated with the snippet described in Debian Official Image, and
 [used in PostgreSQL Official Image](https://github.com/docker-library/postgres/blob/69bc540ecfffecce72d49fa7e4a46680350037f9/9.6/Dockerfile#L21-L24):
 
 ```dockerfile
@@ -98,7 +115,7 @@ Obviously, the value of the timezone has to be one of the right values:
 
 ## Why rewrite all the Dockerfile?
 
-The Dockerfile's of each version, are the same as de Official Image, and only adds the code explained before; so, why 
+The Dockerfile's of each version, are the same as de Official Image, and only adds the code explained before; so, why
 not do a Dockerfile like:
 
 ```dockerfile
@@ -113,11 +130,10 @@ Because, as the official documentation of PostgreSQL explains:
 
 [](https://www.postgresql.org/docs/9.4/static/locale.html#AEN35162)
 
-So, the `initdb` commmand is executed after the apt-get install; and PostgreSQL was installed with the deb packages 
+So, the `initdb` commmand is executed after the apt-get install; and PostgreSQL was installed with the deb packages
 system of Debian; so, we have to localized the image before the installation of the PostgreSQL.
 
-
-# How to use this image
+# How to use this image.
 
 ## start a postgres instance
 
@@ -127,7 +143,7 @@ $ docker run --name some-postgres -e POSTGRES_PASSWORD=mysecretpassword -d postg
 
 This image includes `EXPOSE 5432` (the postgres port), so standard container linking will make it automatically available to the linked containers. The default `postgres` user and database are created in the entrypoint with `initdb`.
 
-> The postgres database is a default database meant for use by users, utilities and third party applications.  
+> The postgres database is a default database meant for use by users, utilities and third party applications.
 > [postgresql.org/docs](http://www.postgresql.org/docs/9.5/interactive/app-initdb.html)
 
 ## connect to it from an application
@@ -144,7 +160,7 @@ psql (9.5.0)
 Type "help" for help.
 
 postgres=# SELECT 1;
- ?column? 
+ ?column?
 ----------
         1
 (1 row)
