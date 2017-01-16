@@ -39,14 +39,17 @@ ENV TERM="xterm"
 #       Installing the 'apt-utils' package gets rid of the
 #           'debconf: delaying package configuration, since apt-utils is not installed'
 #        error message when installing any other package with the apt-get package manager.
-#       The DEBIAN_FRONTEND=noninteractive avoid the errors:
+#       The
+#           set -x
+#        avoid the errors:
 #           debconf: unable to initialize frontend: Dialog
 #           ...
 #           debconf: unable to initialize frontend: Readline
 #           ...
 #       But, the noninteractive frontend has no requirements but it does not ask any questions
+#        see: http://www.gnu.org/software/bash/manual/bashref.html#The-Set-Builtin
 #       (which may or may not be what you want).
-#       Suggested packages: packages that will be very useful; feel free to ommit them.
+#       Suggested packages: packages that will be very useful; feel free to ommit the
 
 RUN set -x \
 	&& apt-get update \

@@ -1,1 +1,1 @@
-The PostgreSQL object-relational database system provides reliability and data integrity.
+Docker Image for PostgreSQL object-relational database, with support for locale and timezone, before build the image. 

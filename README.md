@@ -1,15 +1,8 @@
 # Supported tags and respective `Dockerfile` links
 
--	[`9.6.1`, `9.6`, `9`, `latest` (*9.6/Dockerfile*)](https://github.com/docker-library/postgres/blob/a00e979002aaa80840d58a5f8cc541342e06788f/9.6/Dockerfile)
--	[`9.6.1-alpine`, `9.6-alpine`, `9-alpine`, `alpine` (*9.6/alpine/Dockerfile*)](https://github.com/docker-library/postgres/blob/bcf8da33d85f2a558ae1611cb310d27fe8359fea/9.6/alpine/Dockerfile)
--	[`9.5.5`, `9.5` (*9.5/Dockerfile*)](https://github.com/docker-library/postgres/blob/4f3238cf60b514d5c20e86096817718474f53d73/9.5/Dockerfile)
--	[`9.5.5-alpine`, `9.5-alpine` (*9.5/alpine/Dockerfile*)](https://github.com/docker-library/postgres/blob/bcf8da33d85f2a558ae1611cb310d27fe8359fea/9.5/alpine/Dockerfile)
--	[`9.4.10`, `9.4` (*9.4/Dockerfile*)](https://github.com/docker-library/postgres/blob/4f3238cf60b514d5c20e86096817718474f53d73/9.4/Dockerfile)
--	[`9.4.10-alpine`, `9.4-alpine` (*9.4/alpine/Dockerfile*)](https://github.com/docker-library/postgres/blob/bcf8da33d85f2a558ae1611cb310d27fe8359fea/9.4/alpine/Dockerfile)
--	[`9.3.15`, `9.3` (*9.3/Dockerfile*)](https://github.com/docker-library/postgres/blob/4f3238cf60b514d5c20e86096817718474f53d73/9.3/Dockerfile)
--	[`9.3.15-alpine`, `9.3-alpine` (*9.3/alpine/Dockerfile*)](https://github.com/docker-library/postgres/blob/bcf8da33d85f2a558ae1611cb310d27fe8359fea/9.3/alpine/Dockerfile)
--	[`9.2.19`, `9.2` (*9.2/Dockerfile*)](https://github.com/docker-library/postgres/blob/4f3238cf60b514d5c20e86096817718474f53d73/9.2/Dockerfile)
--	[`9.2.19-alpine`, `9.2-alpine` (*9.2/alpine/Dockerfile*)](https://github.com/docker-library/postgres/blob/bcf8da33d85f2a558ae1611cb310d27fe8359fea/9.2/alpine/Dockerfile)
+-	[`9.6.1-es-es`, `9.6-es-es`, `9-es-es`, `latest-es-es`, `latest` (*9.6/Debian/Dockerfile*)](https://github.com/joserprieto/docker-postgres-i18n/9.6/Debian/Dockerfile)
+-	[`9.4.10-es-es`, `9.4-es-es` (*9.4/Debian/Dockerfile*)](https://github.com/joserprieto/docker-postgres-i18n/9.4/Debian/Dockerfile)
+-	[`9.2.19-es-es`, `9.2-es-es` (*9.2/Debian/Dockerfile*)](https://github.com/joserprieto/docker-postgres-i18n/9.2/Debian/Dockerfile)
 
 For more information about this image and its history, please see [the relevant manifest file (`library/postgres`)](https://github.com/docker-library/official-images/blob/master/library/postgres). This image is updated via [pull requests to the `docker-library/official-images` GitHub repo](https://github.com/docker-library/official-images/pulls?q=label%3Alibrary%2Fpostgres).
 
@@ -23,7 +16,116 @@ PostgreSQL implements the majority of the SQL:2011 standard, is ACID-compliant a
 
 > [wikipedia.org/wiki/PostgreSQL](https://en.wikipedia.org/wiki/PostgreSQL)
 
-![logo](https://raw.githubusercontent.com/docker-library/docs/01c12653951b2fe592c1f93a13b4e289ada0e3a1/postgres/logo.png)
+![logo](./logo.png)
+
+# About this image
+
+This image is based on PostgreSQL Official Image:
+
+> [PostgreSQL Official Image](https://hub.docker.com/_/postgres/)
+> [PostgreSQL Official Image Repository](https://github.com/docker-library/postgres/)
+
+But add extra support for configure timezone and locales before built the image, with the arguments in 
+the `docker build` command (`--build-arg`), and `ARG` in the `Dockerfile`.
+
+Default values for the timezone and locale are:
+
+```bash
+Timezone:   "Europe/Madrid"
+Locale:     es_ES.UTF-8
+```
+
+# How to use this image.
+
+## Build a localized image.
+
+To build a localized image, this is, a PostgreSQL (Debian based) Image with locale and timezone correctly defined, we 
+have to use the `--build-arg` parameter of the `docker build` command.
+
+An example:
+
+```bash
+docker build --build-arg TIMEZONE="Europe/France" --build-arg LOCALE_LANG_COUNTRY="fr_FR" .
+```
+
+## Locales
+
+The locales are generated with the snippet described in Debian Official Image, and 
+[used in PostgreSQL Official Image](https://github.com/docker-library/postgres/blob/69bc540ecfffecce72d49fa7e4a46680350037f9/9.6/Dockerfile#L21-L24):
+
+```dockerfile
+RUN apt-get update && apt-get install -y locales && rm -rf /var/lib/apt/lists/* \
+    && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+ENV LANG en_US.utf8
+```
+
+We only add a few arguments for the build:
+
+```dockerfile
+ARG LOCALE_LANG_COUNTRY="es_ES"
+ARG LOCALE_CODIFICATION="UTF-8"
+ARG LOCALE_CODIFICATION_ENV="utf8"
+```
+
+And execute the build as:
+
+
+```dockerfile
+    && echo "=> Configuring and installing locale (${LOCALE_LANG_COUNTRY}.${LOCALE_CODIFICATION}):" \
+    && apt-get install -y locales \
+    && rm -rf /var/lib/apt/lists/* \
+    && localedef -i ${LOCALE_LANG_COUNTRY} -c -f ${LOCALE_CODIFICATION} -A /usr/share/locale/locale.alias ${LOCALE_LANG_COUNTRY}.${LOCALE_CODIFICATION} \
+```
+
+## Timezone
+
+We use a snippet provided by [Oscar](https://oscarmlage.com/) (Thanks!):
+
+```dockerfile
+    echo "=> Configuring and installing timezone:" && \
+        echo "Europe/Madrid" > /etc/timezone && \
+        dpkg-reconfigure -f noninteractive tzdata && \
+```
+
+Only added an ARG for the build:
+
+```dockerfile
+ARG TIMEZONE="Europe/Madrid"
+```
+
+And, finally:
+
+```dockerfile
+    && echo "=> Configuring and installing timezone (${TIMEZONE}):" \
+    && echo ${TIMEZONE} > /etc/timezone \
+    && dpkg-reconfigure -f noninteractive tzdata \
+```
+
+Obviously, the value of the timezone has to be one of the right values:
+
+[Change Timezone on Debian](https://wiki.debian.org/TimeZoneChanges)
+[List of tz database time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+
+## Why rewrite all the Dockerfile?
+
+The Dockerfile's of each version, are the same as de Official Image, and only adds the code explained before; so, why 
+not do a Dockerfile like:
+
+```dockerfile
+FROM postgres:latest
+..
+```
+And the code for the localization?
+
+Because, as the official documentation of PostgreSQL explains:
+
+[](https://www.postgresql.org/docs/9.4/static/charset.html)
+
+[](https://www.postgresql.org/docs/9.4/static/locale.html#AEN35162)
+
+So, the `initdb` commmand is executed after the apt-get install; and PostgreSQL was installed with the deb packages 
+system of Debian; so, we have to localized the image before the installation of the PostgreSQL.
+
 
 # How to use this image
 
@@ -94,9 +196,9 @@ For example, to add an additional user and database, add the following to `/dock
 set -e
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-EOSQL
-	CREATE USER docker;
-	CREATE DATABASE docker;
-	GRANT ALL PRIVILEGES ON DATABASE docker TO docker;
+    CREATE USER docker;
+    CREATE DATABASE docker;
+    GRANT ALL PRIVILEGES ON DATABASE docker TO docker;
 EOSQL
 ```
 
@@ -116,44 +218,18 @@ Since database initialization only happens on container startup, this allows us 
 
 If there is no database when `postgres` starts in a container, then `postgres` will create the default database for you. While this is the expected behavior of `postgres`, this means that it will not accept incoming connections during that time. This may cause issues when using automation tools, such as `fig`, that start several containers simultaneously.
 
-# Image Variants
-
-The `postgres` images come in many flavors, each designed for a specific use case.
-
-## `postgres:<version>`
-
-This is the defacto image. If you are unsure about what your needs are, you probably want to use this one. It is designed to be used both as a throw away container (mount your source code and start the container to start your app), as well as the base to build other images off of.
-
-## `postgres:alpine`
-
-This image is based on the popular [Alpine Linux project](http://alpinelinux.org), available in [the `alpine` official image](https://hub.docker.com/_/alpine). Alpine Linux is much smaller than most distribution base images (~5MB), and thus leads to much slimmer images in general.
-
-This variant is highly recommended when final image size being as small as possible is desired. The main caveat to note is that it does use [musl libc](http://www.musl-libc.org) instead of [glibc and friends](http://www.etalabs.net/compare_libcs.html), so certain software might run into issues depending on the depth of their libc requirements. However, most software doesn't have an issue with this, so this variant is usually a very safe choice. See [this Hacker News comment thread](https://news.ycombinator.com/item?id=10782897) for more discussion of the issues that might arise and some pro/con comparisons of using Alpine-based images.
-
-To minimize image size, it's uncommon for additional related tools (such as `git` or `bash`) to be included in Alpine-based images. Using this image as a base, add the things you need in your own Dockerfile (see the [`alpine` image description](https://hub.docker.com/_/alpine/) for examples of how to install packages if you are unfamiliar).
-
-# Supported Docker versions
-
-This image is officially supported on Docker version 1.12.5.
-
-Support for older versions (down to 1.6) is provided on a best-effort basis.
-
-Please see [the Docker installation documentation](https://docs.docker.com/installation/) for details on how to upgrade your Docker daemon.
-
-# User Feedback
-
 ## Issues
 
-If you have any problems with or questions about this image, please contact us on the [mailing list](http://www.postgresql.org/community/lists/subscribe/) or through a [GitHub issue](https://github.com/docker-library/postgres/issues). If the issue is related to a CVE, please check for [a `cve-tracker` issue on the `official-images` repository first](https://github.com/docker-library/official-images/issues?q=label%3Acve-tracker).
-
-You can also reach many of the official image maintainers via the `#docker-library` IRC channel on [Freenode](https://freenode.net).
+If you have any problems with or questions about this image, or through a [GitHub issue](https://github.com/joserprieto/docker-postgres-i18n
+/issues).
 
 ## Contributing
 
 You are invited to contribute new features, fixes, or updates, large or small; we are always thrilled to receive pull requests, and do our best to process them as fast as we can.
 
-Before you start to code, we recommend discussing your plans on the [mailing list](http://www.postgresql.org/community/lists/subscribe/) or through a [GitHub issue](https://github.com/docker-library/postgres/issues), especially for more ambitious contributions. This gives other contributors a chance to point you in the right direction, give you feedback on your design, and help you find out if someone else is working on the same thing.
+Before you start to code, we recommend discussing your plans through a [GitHub issue](https://github.com/joserprieto/docker-postgres-i18n
+/issues), especially for more ambitious contributions. This gives other contributors a chance to point you in the right direction, give you feedback on your design, and help you find out if someone else is working on the same thing.
 
 ## Documentation
 
-Documentation for this image is stored in the [`postgres/` directory](https://github.com/docker-library/docs/tree/master/postgres) of the [`docker-library/docs` GitHub repo](https://github.com/docker-library/docs). Be sure to familiarize yourself with the [repository's `README.md` file](https://github.com/docker-library/docs/blob/master/README.md) before attempting a pull request.
+To define how and where will be stored....
