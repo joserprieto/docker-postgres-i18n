@@ -53,7 +53,7 @@ ENV TERM="xterm"
 
 RUN set -x \
 	&& apt-get update \
-	&& apt-get upgrade \
+	&& apt-get upgrade -y \
 	&& echo "=> Needed packages:" \
     && apt-get install -y --no-install-recommends apt-utils ca-certificates \
     && echo "=> Suggested packages:" \
